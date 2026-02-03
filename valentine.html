@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>💖 Valentine Surprise 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.box {
+  background: white;
+  padding: 25px;
+  width: 90%;
+  max-width: 350px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  animation: fadeIn 1s ease;
+}
+
+button {
+  padding: 12px 25px;
+  margin: 10px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.yes { background: #ff4d6d; color: white; }
+.no { background: #ccc; }
+
+input {
+  padding: 10px;
+  width: 90%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.cover {
+  font-size: 70px;
+  animation: bounce 1.5s infinite;
+  cursor: pointer;
+}
+
+.heart {
+  position: absolute;
+  color: rgba(255,255,255,0.8);
+  font-size: 20px;
+  animation: float 6s linear infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(100vh); opacity: 0; }
+  100% { transform: translateY(-10vh); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="box" id="app"></div>
+
+<script>
+/* Floating hearts */
+setInterval(() => {
+  const heart = document.createElement("div");
+  heart.className = "heart";
+  heart.innerHTML = "❤️";
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.fontSize = Math.random() * 20 + 15 + "px";
+  document.body.appendChild(heart);
+  setTimeout(() => heart.remove(), 6000);
+}, 500);
+
+/* Quiz Logic */
+const questions = [
+  "Do you believe in love? 💕",
+  "Do you enjoy surprises? 🎁",
+  "Is Valentine's Day special to you? 💖",
+  "Do you like cute messages? 💌",
+  "Do hearts make you smile? ❤️",
+  "Do you enjoy romantic vibes? 🌹",
+  "Do you believe in destiny? ✨",
+  "Are you enjoying this? 😊",
+  "Do you trust the person who sent this? 💞",
+  "Ready for your surprise? 🎀"
+];
+
+let step = localStorage.getItem("step") || "name";
+let index = localStorage.getItem("index") || 0;
+let userName = localStorage.getItem("name") || "";
+
+const app = document.getElementById("app");
+
+function save() {
+  localStorage.setItem("step", step);
+  localStorage.setItem("index", index);
+  localStorage.setItem("name", userName);
+}
+
+function showName() {
+  app.innerHTML = `
+    <h2>💖 What's your name?</h2>
+    <input id="nameInput" placeholder="Enter your name">
+    <br>
+    <button class="yes" onclick="start()">Start 💕</button>
+  `;
+}
+
+function start() {
+  userName = document.getElementById("nameInput").value;
+  if (!userName) return;
+  step = "quiz";
+  save();
+  showQuestion();
+}
+
+function showQuestion() {
+  app.innerHTML = `
+    <h3>${questions[index]}</h3>
+    <button class="yes" onclick="yes()">Yes</button>
+    <button class="no" onclick="no()">No</button>
+    <div class="error" id="err"></div>
+  `;
+}
+
+function yes() {
+  index++;
+  save();
+  if (index < questions.length) {
+    showQuestion();
+  } else {
+    step = "cover";
+    save();
+    showCover();
+  }
+}
+
+function no() {
+  document.getElementById("err").innerText =
+    "❌ This is not a valid option";
+}
+
+function showCover() {
+  app.innerHTML = `
+    <div class="cover">🎁</div>
+    <p>Tap to open your Valentine Surprise 💖</p>
+    <button class="yes" onclick="openGift()">Open</button>
+  `;
+}
+
+function openGift() {
+  step = "final";
+  save();
+  app.innerHTML = `
+    <h2>💌 Dear ${userName} 💌</h2>
+    <p>
+      You just unlocked something special ❤️<br><br>
+      <b>You are truly valued, admired,<br>
+      and someone very special 💕</b>
+    </p>
+    <button class="yes" onclick="send()">Send 💖</button>
+  `;
+}
+
+function send() {
+  fetch("https://formsubmit.co/ajax/suras0136@gmail.com", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: userName,
+      message: "Completed Valentine Surprise 💖"
+    })
+  }).then(() => {
+    localStorage.clear();
+    app.innerHTML = "<h2>💖 Sent with Love 💖</h2>";
+  });
+}
+
+/* Load State */
+if (step === "name") showName();
+else if (step === "quiz") showQuestion();
+else if (step === "cover") showCover();
+else openGift();
+
+</script>
+
+</body>
+</html>
